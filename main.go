@@ -2,21 +2,21 @@ package main
 
 import (
 	"database/sql"
-	"gopkg.in/yaml.v2"
 	_ "github.com/go-sql-driver/mysql"
+	"gopkg.in/yaml.v2"
 	//sq "github.com/Masterminds/squirrel"
-	"io/ioutil"
-	"github.com/pkg/errors"
 	"fmt"
+	"github.com/pkg/errors"
+	"io/ioutil"
 )
 
 type settings struct {
-	mysql struct {
-		host string
-		db string
-		user string
-		pass string
-	}
+	MySQL struct {
+		Host string `yaml:"host"`
+		DB   string `yaml:"db"`
+		User string `yaml:"user"`
+		Pass string `yaml:"pass"`
+	} `yaml:"mysql"`
 }
 
 func mustLoadSettings(s *settings) {
@@ -33,15 +33,25 @@ func mustLoadSettings(s *settings) {
 func main() {
 	var s settings
 	mustLoadSettings(&s)
+	fmt.Printf("%+v\n", s)
 
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@/%s", s.mysql.user, s.mysql.pass, s.mysql.host))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@%s/%s", s.MySQL.User, s.MySQL.Pass, s.MySQL.Host, s.MySQL.DB))
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
-	//rows, err := db.Query("SELECT * FROM users")
-	//if err != nil {
-	//	panic(err.Error())
-	//}
+	rows, err := db.Query("SELECT regionid, name FROM region")
+	if err != nil {
+		panic(err)
+	}
+
+	for rows.Next() {
+		id, name := 0, ""
+		rows.Scan(&id, &name)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%5d: %s\n", id, name)
+	}
 }

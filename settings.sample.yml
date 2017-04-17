@@ -1,5 +1,5 @@
 mysql:
-  host: localhost
+  host: ''
   db: trial_squirrel
   user: username
   pass: password
