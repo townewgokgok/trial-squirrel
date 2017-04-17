@@ -1,0 +1,5 @@
+mysql:
+  host: localhost
+  db: trial_squirrel
+  user: username
+  pass: password
