@@ -13,6 +13,7 @@ import (
 type settings struct {
 	MySQL struct {
 		Host string `yaml:"host"`
+		Port int    `yaml:"port"`
 		DB   string `yaml:"db"`
 		User string `yaml:"user"`
 		Pass string `yaml:"pass"`
@@ -33,15 +34,17 @@ func mustLoadSettings(s *settings) {
 func main() {
 	var s settings
 	mustLoadSettings(&s)
-	fmt.Printf("%+v\n", s)
 
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@%s/%s", s.MySQL.User, s.MySQL.Pass, s.MySQL.Host, s.MySQL.DB))
+	datasrc := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", s.MySQL.User, s.MySQL.Pass, s.MySQL.Host, s.MySQL.Port, s.MySQL.DB)
+	//fmt.Printf("%s\n", datasrc)
+
+	db, err := sql.Open("mysql", datasrc)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT regionid, name FROM region")
+	rows, err := db.Query("SELECT archiveid, name FROM archive")
 	if err != nil {
 		panic(err)
 	}
